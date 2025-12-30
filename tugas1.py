@@ -1,75 +1,96 @@
+from abc import ABC, abstractmethod
+
+
 # =========================
-# Parent Class
+# 1. ABSTRACTION
 # =========================
-class Karyawan:
-    def __init__(self, nama, gaji_pokok):
+class Pengguna(ABC):
+    def __init__(self, nama):
         self.nama = nama
-        self.gaji_pokok = gaji_pokok
 
-    def info_gaji(self):
-        return f"{self.nama} - Gaji Pokok: {self.gaji_pokok}"
-
-
-# =========================
-# Child Class: Manager
-# =========================
-class Manager(Karyawan):
-    def __init__(self, nama, gaji_pokok, tunjangan):
-        super().__init__(nama, gaji_pokok)
-        self.tunjangan = tunjangan
-
-    def info_gaji(self):
-        total = self.gaji_pokok + self.tunjangan
-        return f"Manager {self.nama} - Total Gaji: {total}"
+    @abstractmethod
+    def akses(self):
+        pass
 
 
-# =========================
-# Child Class: Programmer
-# =========================
-class Programmer(Karyawan):
-    def __init__(self, nama, gaji_pokok, bonus):
-        super().__init__(nama, gaji_pokok)
-        self.bonus = bonus
+class Member(Pengguna):
+    def __init__(self, nama, poin):
+        super().__init__(nama)
+        self.poin = poin
 
-    def info_gaji(self):
-        total = self.gaji_pokok + self.bonus
-        return f"Programmer {self.nama} - Total Gaji: {total}"
+    def akses(self):
+        print(f"{self.nama} memiliki akses sebagai MEMBER.")
+
+    # =========================
+    # 2. SPECIAL METHODS
+    # =========================
+    def __str__(self):
+        return f"Member: {self.nama} – Poin: {self.poin}"
+
+    def __add__(self, other):
+        return self.poin + other.poin
+
+    def __len__(self):
+        return len(self.nama)
 
 
 # =========================
-# Composition: Departemen
+# 4. CUSTOM EXCEPTION
 # =========================
-class Departemen:
-    def __init__(self, nama_departemen):
-        self.nama_departemen = nama_departemen
-        self.karyawan_list = []
-
-    def tambah_karyawan(self, karyawan):
-        self.karyawan_list.append(karyawan)
-
-    def tampilkan_karyawan(self):
-        print(f"Daftar Karyawan Departemen {self.nama_departemen}:")
-        for k in self.karyawan_list:
-            print(k.info_gaji())
+class PoinTidakValidError(Exception):
+    pass
 
 
 # =========================
-# Instansiasi Object
+# PROGRAM UTAMA
 # =========================
-m1 = Manager("Andi", 7000000, 3000000)
-m2 = Manager("Budi", 7500000, 2500000)
+def input_poin():
+    nilai = input("Masukkan poin member: ").strip()
 
-p1 = Programmer("Citra", 6000000, 1500000)
-p2 = Programmer("Dina", 6200000, 1800000)
+    if nilai == "":
+        raise ValueError("Input poin tidak boleh kosong!")
 
-dept_it = Departemen("IT")
+    poin = int(nilai)
 
-dept_it.tambah_karyawan(m1)
-dept_it.tambah_karyawan(m2)
-dept_it.tambah_karyawan(p1)
-dept_it.tambah_karyawan(p2)
+    if poin < 0:
+        raise PoinTidakValidError("Poin tidak boleh negatif!")
 
-# =========================
-# Eksekusi Program
-# =========================
-dept_it.tampilkan_karyawan()
+    return poin
+
+
+if __name__ == "__main__":
+    try:
+        # =========================
+        # 3. EXCEPTION HANDLING
+        # =========================
+        poin1 = input_poin()
+        poin2 = input_poin()
+
+        # =========================
+        # 5. INSTANSIASI OBJEK
+        # =========================
+        m1 = Member("Andi", poin1)
+        m2 = Member("Budi", poin2)
+
+        # Tampilkan info member
+        print("\n=== INFO MEMBER ===")
+        print(m1)
+        print(m2)
+
+        # Hak akses
+        m1.akses()
+        m2.akses()
+
+        # Operasi special methods
+        print("\n=== OPERASI ===")
+        print("Jumlah poin:", m1 + m2)
+        print("Panjang nama m1:", len(m1))
+
+    except ValueError as ve:
+        print("Error Input:", ve)
+
+    except PoinTidakValidError as pe:
+        print("Error Poin:", pe)
+
+    finally:
+        print("\nProgram selesai dijalankan.")
